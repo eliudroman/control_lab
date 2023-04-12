@@ -1,0 +1,40 @@
+{% include "sitio/cabecera.html" %}
+
+<h1>
+    Horarios
+</h1>
+
+<form action="/horarios/solicitar" method="post" enctype="multipart/form-data">
+
+    <div class="mb-3">
+        <label for="txtHora" class="form-label">Hora:</label>
+        <input type="text"
+          class="form-control" name="txtHora" id="txtHora" aria-describedby="helpId" placeholder="Escriba la hora solicitada">
+    </div>
+
+    <div class="mb-3">
+      <label for="txtComputadora" class="form-label">Computadora</label>
+      <input type="text"
+        class="form-control" name="txtComputadora" id="txtComputadora" aria-describedby="helpId" placeholder="Seleccione computadora">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Agregar</button>
+
+</form>
+
+<div class="row">
+    <h1>Solicitudes</h1>
+    {% for sol in solicitud %}
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Computadora: {{ sol[2] }}</h4>
+                <h4 class="card-title">Hora: {{ sol[3] }}</h4>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% include "sitio/pie.html" %}

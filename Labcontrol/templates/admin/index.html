@@ -1,0 +1,15 @@
+{% include "admin/cabecera.html" %}
+
+<div class="row align-items-md-stretch">
+    <div class="col-md-6">
+        <div
+            class="h-100 p-5 text-white bg-primary border rounded-3">
+            <h2>Menu de login</h2>
+            <h3>Bienvenido <strong>{{  session["usuario_admin"] }} </strong></h3>
+            <p>Administrador de horarios</p>
+            <button class="btn btn-outline-primary" type="button">Example button</button>
+        </div>
+    </div>
+</div>
+
+{% include "admin/pie.html" %}

@@ -1,0 +1,107 @@
+{% include "admin/cabecera.html" %}
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-md-5">
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>Laboratorio 2</h2>
+                </div>
+                <div class="card-body">
+
+                    <form action="/admin/laboratorio2/guardar" method="post" enctype="multipart/form-data">
+
+                        <div class="mb-3">
+                            <label for="txtID" class="form-label">ID:</label>
+                            <input type="text"
+                              class="form-control" name="txtID" id="txtID" aria-describedby="helpId" placeholder="Escriba su Matricula">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="txtMatricula" class="form-label">Matricula:</label>
+                            <input type="text"
+                              class="form-control" name="txtMatricula" id="txtMatricula" aria-describedby="helpId" placeholder="Escriba la matricula">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="txtUso" class="form-label">Uso:</label>
+                            <input type="text"
+                              class="form-control" name="txtUso" id="txtUso" aria-describedby="helpId" placeholder="Escriba el quien la está usando">
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="txtDisponible" class="form-label">Disponible</label>
+                          <input type="text"
+                            class="form-control" name="txtDisponible" id="txtDisponible" aria-describedby="helpId" placeholder="Disponible">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+
+                    </form>
+
+                </div>
+                <div class="card-footer text-muted">
+                    
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-7">
+            
+            <div class="table-responsive">
+                <table class="table table-primary">
+                    <thead>
+                        <tr>
+                            <th>PC</th>
+                            <th>Asignacion</th>
+                            <th>Usando</th>
+                            <th>Disponible</th>
+                            <th>Editar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for libro in computadoras %}
+                        <tr>
+                            <td>{{ libro[0] }}</td>
+                            <td>{{ libro[1] }}</td>
+                            <td>
+                                <img width="60" src="/img/{{ libro[2] }}" class="img-fluid rounded-top" alt="">
+                                {{ libro[2] }}
+                            </td>
+                            <td>{{ libro[3] }}</td>
+                            <td>
+                                <form action="/admin/laboratorio2/borrar" method="post">
+                                    <input value= "{{ libro[0] }}" type="text" name="txtID" id="txtID">
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form>
+
+                                <form action="/admin/laboratorio2/habilitar" method="post">
+                                    <input value= "{{ libro[0] }}" type="text" name="txtID" id="txtID">
+                                    <button type="submit" class="btn btn-primary">Habilitar</button>
+                                    
+                                </form>
+
+                                <form action="/admin/laboratorio2/desabilitar" method="post">
+                                    <input value= "{{ libro[0] }}" type="text" name="txtID" id="txtID">
+                                    <button type="submit" class="btn btn-secondary">Desabilitar</button>
+                                </form>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+
+        </div>
+        
+    </div>
+</div>
+
+
+
+
+{% include "admin/pie.html" %}
