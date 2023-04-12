@@ -14,7 +14,7 @@ mysql=MySQL()
 app.config["MYSQL_DATABASE_HOST"]="localhost"
 app.config["MYSQL_DATABASE_USER"]="root"
 app.config["MYSQL_DATABASE_PASSWORD"]=""
-app.config["MYSQL_DATABASE_DB"]="control_lab"
+app.config["MYSQL_DATABASE_DB"]="upiit_control_lab"
 mysql.init_app(app)
 
 
@@ -45,7 +45,7 @@ def login_post():
 
     conexion=mysql.connect()
     cursor=conexion.cursor()
-    cursor.execute("SELECT matricula,contraseña FROM `usuario` WHERE matricula=%s",(_matricula))
+    cursor.execute("SELECT id_usuario,contrasena FROM `usuario` WHERE id_usuario=%s",(_matricula))
     correcto=cursor.fetchall()
     conexion.commit()
     print(correcto)
@@ -59,7 +59,7 @@ def login_post():
     
     conexion=mysql.connect()
     cursor=conexion.cursor()
-    cursor.execute("SELECT nombre FROM `usuario` WHERE matricula=%s",(_matricula))
+    cursor.execute("SELECT nombre FROM `usuario` WHERE id_usuario=%s",(_matricula))
     nombre=cursor.fetchall()
     conexion.commit()
     print(nombre)
