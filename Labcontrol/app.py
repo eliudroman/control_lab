@@ -128,7 +128,7 @@ def horarios():
     
     conexion=mysql.connect()
     cursor=conexion.cursor()
-    cursor.execute("SELECT * FROM `solicitud` WHERE matricula=%s",(session["matricula"]))
+    cursor.execute("SELECT * FROM `reserva` WHERE id_responsable=%s",(session["matricula"]))
     solicitud=cursor.fetchall()
     conexion.commit()
 
@@ -150,8 +150,8 @@ def solicitar_pc():
     tiempo=datetime.now()
     horaActual=tiempo.strftime('%Y%H%M%S')
 
-    sql="INSERT INTO `solicitud` (`id`, `matricula`, `computadora`,`hora`) VALUES (NULL,%s,%s,%s);"
-    datos=(_matricula,_computadora,_hora)
+    sql="INSERT INTO `reserva` (`id_reserva`, `id_laboratorio`, `id_responsable`, `fecha`) VALUES (NULL,%s,%s,%s);"
+    datos=(_computadora,_matricula,_hora)
     
     conexion=mysql.connect()
     cursor=conexion.cursor()
