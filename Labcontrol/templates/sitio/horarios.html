@@ -4,6 +4,41 @@
     Horarios
 </h1>
 
+
+<div class="col-md-7">
+            
+    <div class="table-responsive">
+        <table class="table table-primary">
+            <thead>
+                <tr>
+                    <th>Lunes</th>
+                    <th>Martes</th>
+                    <th>Miercoles</th>
+                    <th>Jueves</th>
+                    <th>Viernes</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for i in range (0,30,7) %}
+                <tr>
+                    {% for j in range(0,5) %}
+                    <td>{{ Horario[j+i] }}</td>
+                    {% endfor %}
+
+                </tr>
+                {% endfor %}
+                
+
+            </tbody>
+        </table>
+    </div>
+    
+
+</div>
+
+
+
 <form action="/horarios/solicitar" method="post" enctype="multipart/form-data">
 
     <div class="mb-3">

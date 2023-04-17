@@ -4,7 +4,8 @@ from flaskext.mysql import MySQL
 from datetime import datetime
 from flask import send_from_directory
 import os
-
+from datetime import date
+import calendar
 ####
 app=Flask(__name__)
 app.secret_key="UPIIT"
@@ -94,6 +95,7 @@ def laboratorio2():
     computadoras=cursor.fetchall()
     conexion.commit()
     print(computadoras)
+
     return render_template("sitio/laboratorio2.html", computadoras=computadoras)
 
 
@@ -132,7 +134,31 @@ def horarios():
     solicitud=cursor.fetchall()
     conexion.commit()
 
-    return render_template("sitio/horarios.html",solicitud=solicitud)
+    now = date.today()
+    print(now)
+    ano = 0
+    ano = int(str(now)[0])*1000 + int(str(now)[1])*100 + int(str(now)[2])*10 + int(str(now)[3])
+    #print(ano)
+    dia = 0
+    dia = int(str(now)[8])*10 + int(str(now)[9])
+    #print(dia)
+    mes = 0
+    mes = int(str(now)[5])*10 + int(str(now)[6])
+    #print(mes)
+
+    cal= calendar.Calendar()
+    Horario = []
+    for j in cal.monthdayscalendar(ano,mes):
+        for i in j:
+            Horario.append(i)
+    vacia = True
+    for k in range(0,5):
+        if(Horario[k] != 0):
+            vacia = False
+    if(vacia == True):
+        for k in range(0,7):
+            Horario.remove(Horario[0])
+    return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario)
 
 
 @app.route("/horarios/solicitar", methods=["POST"])
