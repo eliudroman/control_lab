@@ -19,17 +19,13 @@
                 </tr>
             </thead>
             <tbody>
-
-                {% for i in range (0,30,7) %}
+                {% for i in range (0,tamano,7) %}
                 <tr>
                     {% for j in range(0,5) %}
-                    <td>{{ Horario[j+i] }}</td>
+                    <td class="reserva">{{ Horario[j+i] }}</td>
                     {% endfor %}
-
                 </tr>
                 {% endfor %}
-                
-
             </tbody>
         </table>
     </div>
@@ -37,7 +33,17 @@
 
 </div>
 
+<script>
+    var reservas = document.querySelectorAll(".reserva");
+    console.log(reservas)
 
+    for (let i of reservas) {
+    i.addEventListener('click', () => {
+        console.log("Dia")
+        console.log(i.textContent)
+    })
+}
+</script>
 
 <form action="/horarios/solicitar" method="post" enctype="multipart/form-data">
 
