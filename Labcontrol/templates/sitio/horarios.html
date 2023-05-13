@@ -6,7 +6,7 @@
 
 
 <div class="col-md-7">
-            
+
     <div class="table-responsive">
         <table class="table table-primary">
             <thead>
@@ -29,7 +29,7 @@
             </tbody>
         </table>
     </div>
-    
+
 
 </div>
 
@@ -38,11 +38,14 @@
     console.log(reservas)
 
     for (let i of reservas) {
-    i.addEventListener('click', () => {
-        console.log("Dia")
-        console.log(i.textContent)
-    })
-}
+        if (i.textContent != "") {
+            i.addEventListener('click', () => {
+                console.log("Dia")
+                console.log(i.textContent)
+            })
+
+        }
+    }
 </script>
 
 <form action="/horarios/solicitar" method="post" enctype="multipart/form-data">

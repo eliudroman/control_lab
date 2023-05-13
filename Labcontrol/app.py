@@ -15,7 +15,7 @@ mysql=MySQL()
 app.config["MYSQL_DATABASE_HOST"]="localhost"
 app.config["MYSQL_DATABASE_USER"]="root"
 app.config["MYSQL_DATABASE_PASSWORD"]=""
-app.config["MYSQL_DATABASE_DB"]="upiit_control_lab"
+app.config["MYSQL_DATABASE_DB"]="control_lab_upiit"
 mysql.init_app(app)
 
 
@@ -72,6 +72,60 @@ def login_post():
         return redirect("/")    
 
     return render_template("sitio/login.html")
+
+@app.route("/signup")
+def signup():
+    return render_template("sitio/signup.html")
+
+
+@app.route("/signup", methods=['POST'])
+def signup_post():
+    _matricula=request.form['txtUsuario']
+    _nombre=request.form['txtNombre']
+    _contraseña=request.form['txtPassword']
+    _contraseñaV=request.form['txtPasswordV']
+
+    if _contraseña != _contraseñaV:
+        print("la contraseña no coincide")
+        return redirect("/signup")
+    
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT * FROM `usuario` WHERE id_usuario=%s",(_matricula))
+    usuario=cursor.fetchall()
+    conexion.commit()
+    print(usuario)
+
+    a = "matricula"
+    b = "nombre"
+    c = "contraseña"
+
+    for i in usuario:
+        a = i[0]
+        b = i[1]
+        c = i[2]
+
+    if str(_matricula) != str (a):
+        print("la matricula no está en la base")
+        print(_matricula)
+        print(usuario)
+        return redirect("/signup")
+    
+    if str(b) == "" and str(c) == "":
+        sql="UPDATE `usuario` SET `nombre` = %s, `contrasena` = %s WHERE `usuario`.`id_usuario` = %s"
+        datos=(_nombre,_contraseña,_matricula)
+
+        conexion=mysql.connect()
+        cursor=conexion.cursor()
+        cursor.execute(sql,datos)
+        conexion.commit()
+    else:
+        return redirect("/signup")
+    
+
+    return render_template("sitio/login.html")
+
+
 
 @app.route("/cerrar")
 def login_cerrar():
@@ -135,7 +189,6 @@ def horarios():
     conexion.commit()
 
     now = date.today()
-    print(now)
     ano = int(str(now)[0])*1000 + int(str(now)[1])*100 + int(str(now)[2])*10 + int(str(now)[3])
     #print(ano)
     dia = int(str(now)[8])*10 + int(str(now)[9])
@@ -145,16 +198,34 @@ def horarios():
 
     cal= calendar.Calendar()
     Horario = []
+    semanas_vacia = 2
+
     for j in cal.monthdayscalendar(ano,mes):
         for i in j:
-            Horario.append(i)
+            if(i<dia):
+                Horario.append("")
+            if(i>=dia):
+                Horario.append(i)
+    for j in cal.monthdayscalendar(ano,mes+1):
+        for i in j:
+            if(i<1):
+                Horario.append("")
+            if(i>=1):
+                Horario.append(i)
+    i = 0
+    while Horario[i] != dia:
+        semanas_vacia = semanas_vacia + 1
+        i = i+1
+    
     vacia = True
-    for k in range(0,5):
-        if(Horario[k] != 0):
+    for k in range(0,int(semanas_vacia/7)*5):
+        if(Horario[k] != ""):
             vacia = False
+
     if(vacia == True):
-        for k in range(0,7):
+        for k in range(0,int(semanas_vacia/7)*7):
             Horario.remove(Horario[0])
+
     return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario,tamano=len(Horario))
 
 
@@ -205,31 +276,28 @@ def admin_login_post():
 
     conexion=mysql.connect()
     cursor=conexion.cursor()
-    cursor.execute("SELECT matricula,contraseña,especialidad FROM `usuario` WHERE matricula=%s",(_usuario))
+    cursor.execute("SELECT id_usuario,contrasena FROM `usuario` WHERE id_usuario=%s",(_usuario))
     correcto=cursor.fetchall()
     conexion.commit()
     print(correcto)
 
     c="INCORRECTA"
     u="INCORRECTA"
-    admin="INCORRECTA"
     for a in correcto:
         u=a[0]
     for a in correcto:
         c=a[1]
-    for a in correcto:
-        admin=a[2]
 
     conexion=mysql.connect()
     cursor=conexion.cursor()
-    cursor.execute("SELECT nombre FROM `usuario` WHERE matricula=%s",(_usuario))
+    cursor.execute("SELECT nombre FROM `usuario` WHERE id_usuario=%s",(_usuario))
     nombre=cursor.fetchall()
     conexion.commit()
     print(nombre)
     
 
 
-    if str(_usuario)==str(u) and str(_password)==str(c) and str(admin)=="Docente":
+    if str(_usuario)==str(u) and str(_password)==str(c) and int(_usuario) < 2000:
         session["admin_login"]=True
         session["usuario_admin"]=str(nombre[0][0])
         return redirect("/admin")
@@ -241,130 +309,111 @@ def admin_login_cerrar():
     session.clear()
     return redirect("/admin/login")
 
+#---------------------------------Usuarios---------------------------------------------Usuarios Admin
 
-#---------------------------------lab1---------------------------------------------Lab1
-@app.route("/admin/laboratorio1")
-def admin_laboratorio1():
+@app.route("/admin/usuarios")
+def admin_usuarios():
+    if not 'admin_login' in session:
+        return redirect("/admin/login")
+
+    return render_template("admin/usuarios.html")
+
+@app.route("/admin/usuarios/buscar", methods=["POST"])
+def admin_usuarios_buscar():
     if not 'admin_login' in session:
         return redirect("/admin/login")
     
-    conexion=mysql.connect()
-    cursor=conexion.cursor()
-    cursor.execute('SELECT * FROM `laboratorio`')
-    computadoras=cursor.fetchall()
-    conexion.commit()
-    print(computadoras)
+    
+    _matricula=request.form['txtUsuario']
 
     conexion=mysql.connect()
     cursor=conexion.cursor()
-    cursor.execute('SELECT * FROM `solicitud`')
-    solicitud=cursor.fetchall()
+    cursor.execute("SELECT * FROM `usuario` WHERE id_usuario=%s",(_matricula))
+    usuario=cursor.fetchall()
     conexion.commit()
 
-    return render_template("/admin/laboratorio1.html", computadoras=computadoras,solicitud=solicitud)
+    print(usuario)
+    matricula = ""
+    nombre = ""
+    contraseña = ""
+    for i in usuario:
+        matricula = i[0]
+        nombre = i[1]
+        contraseña = i[2]
+    print(matricula)
+    print(nombre)
+    print(contraseña)
 
-@app.route("/admin/laboratorio1/guardar", methods=["POST"])
+    return render_template("admin/usuarios.html",matricula=matricula,nombre=nombre,contraseña=contraseña)
+
+
+@app.route("/admin/usuarios/crear", methods=["POST"])
 def admin_laboratorio1_guardar():
     if not 'admin_login' in session:
         return redirect("/admin/login")
 
-    _id=request.form["txtID"]
-    _matricula=request.form["txtMatricula"]
-    _uso=request.form["txtUso"]
-    _disponible=request.form["txtDisponible"]
+    _matricula=request.form["txtUsuario"]
 
-    tiempo=datetime.now()
-    horaActual=tiempo.strftime('%Y%H%M%S')
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT id_usuario FROM `usuario` WHERE id_usuario=%s",(_matricula))
+    usuario=cursor.fetchall()
+    conexion.commit()
 
-#    if _archivo.filename!="":
-#        nuevoNombre=horaActual+"_"+_archivo.filename
-#        _archivo.save("templates/sitio/img/"+nuevoNombre)
+    print(usuario)
 
-    sql="INSERT INTO `laboratorio` (`id`, `matriculas`, `uso`, `disponible`) VALUES (%s,%s,%s,%s);"
-    datos=(_id,_matricula,_uso,_disponible)
+    a = "usuario"
+    for i in usuario:
+        a = i[0]
+    print(a)
+
+    if _matricula == a:
+        return redirect("/admin/usuarios")
+
+    sql="INSERT INTO `usuario` (`id_usuario`, `nombre`, `contrasena`) VALUES (%s,%s,%s);"
+    datos=(_matricula,"","")
     
     conexion=mysql.connect()
     cursor=conexion.cursor()
     cursor.execute(sql,datos)
     conexion.commit()
 
-    print(_id)
-    print(_matricula)
-    print(_uso)
-    print(_disponible)
 
-    return redirect("/admin/laboratorio1")
+    return redirect("/admin/usuarios")
 
-@app.route("/admin/laboratorio1/habilitar", methods=["POST"])
-def admin_laboratorio1_habilitar():
-    if not 'admin_login' in session:
-        return redirect("/admin/login")
-
-    _id=request.form["txtID"]
-#    tiempo=datetime.now()
-#    horaActual=tiempo.strftime('%Y%H%M%S')
-
-#    if _archivo.filename!="":
-#        nuevoNombre=horaActual+"_"+_archivo.filename
-#        _archivo.save("templates/sitio/img/"+nuevoNombre)
-
-    sql="UPDATE `laboratorio` SET `disponible` = '2' WHERE `laboratorio`.`id` = %s;"
-    dato=(_id)
-    conexion=mysql.connect()
-    cursor=conexion.cursor()
-    cursor.execute(sql,dato)
-    conexion.commit()
-    print(_id)
-
-    return redirect("/admin/laboratorio1")
-
-@app.route("/admin/laboratorio1/desabilitar", methods=["POST"])
+@app.route("/admin/usuarios/editar", methods=["POST"])
 def admin_laboratorio1_desabilitar():
     if not 'admin_login' in session:
         return redirect("/admin/login")
 
-    _id=request.form["txtID"]
-#    tiempo=datetime.now()
-#    horaActual=tiempo.strftime('%Y%H%M%S')
+    _matricula=request.form["txtMatricula"]
+    _nombre=request.form["txtNombre"]
+    _contraseña=request.form["txtUsuario"]
 
-#    if _archivo.filename!="":
-#        nuevoNombre=horaActual+"_"+_archivo.filename
-#        _archivo.save("templates/sitio/img/"+nuevoNombre)
-
-    sql="UPDATE `laboratorio` SET `disponible` = '1' WHERE `laboratorio`.`id` = %s;"
-    dato=(_id)
+    sql="UPDATE `usuario` SET `id_usuario` = %s, `nombre` = %s, `contrasena` = %s  WHERE `usuario`.`id_usuario` = %s;"
+    dato=(_matricula,_nombre,_contraseña,_matricula)
     conexion=mysql.connect()
     cursor=conexion.cursor()
     cursor.execute(sql,dato)
     conexion.commit()
-    print(_id)
 
-    return redirect("/admin/laboratorio1")
+    return redirect("/admin/usuarios")
 
-@app.route("/admin/laboratorio1/borrar",methods=["POST"])
-def admin_laboratorio1_borrar():
+@app.route("/admin/usuarios/borrar",methods=["POST"])
+def admin_usuarios_borrar():
     if not 'admin_login' in session:
         return redirect("/admin/login")
 
     _id=request.form["txtID"]
     print(_id)
 
-#    conexion=mysql.connect()
-#    cursor=conexion.cursor()
-#    cursor.execute("SELECT imagen FROM `laboratorio1` WHERE id=%s",(_id))
-#    libro=cursor.fetchall()
-#    conexion.commit()
-#    print(libro)
-
-#    if os.path.exists("templates/sitio/img/"+str(libro[0][0])):
-#        os.unlink("templates/sitio/img/"+str(libro[0][0]))
     conexion=mysql.connect()
     cursor=conexion.cursor()
-    cursor.execute("DELETE FROM laboratorio WHERE id=%s",(_id))
+    cursor.execute("DELETE FROM usuario WHERE id_usuario=%s",(_id))
     conexion.commit()
 
-    return redirect("/admin/laboratorio1")
-#---------------------------------lab1---------------------------------------------Lab1
+    return redirect("/admin/usuarios")
+#---------------------------------Usuarios---------------------------------------------Usuarios Admin
 
 #---------------------------------lab2---------------------------------------------Lab2
 @app.route("/admin/laboratorio2")
