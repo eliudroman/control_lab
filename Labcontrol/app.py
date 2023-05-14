@@ -271,15 +271,19 @@ def admin_login():
 def admin_login_post():
     _usuario=request.form['txtUsuario']
     _password=request.form['txtPassword']
-    print(_usuario)
-    print(_password)
 
     conexion=mysql.connect()
     cursor=conexion.cursor()
     cursor.execute("SELECT id_usuario,contrasena FROM `usuario` WHERE id_usuario=%s",(_usuario))
     correcto=cursor.fetchall()
     conexion.commit()
-    print(correcto)
+
+    
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT id_curso FROM grupo WHERE usuario=%s",(_usuario))
+    cursos=cursor.fetchall()
+    conexion.commit()
 
     c="INCORRECTA"
     u="INCORRECTA"
@@ -287,17 +291,18 @@ def admin_login_post():
         u=a[0]
     for a in correcto:
         c=a[1]
+    admin = False
+    for a in cursos:
+        if(str(a[0]) == "ADMI"):
+            admin = True
 
     conexion=mysql.connect()
     cursor=conexion.cursor()
     cursor.execute("SELECT nombre FROM `usuario` WHERE id_usuario=%s",(_usuario))
     nombre=cursor.fetchall()
     conexion.commit()
-    print(nombre)
     
-
-
-    if str(_usuario)==str(u) and str(_password)==str(c) and int(_usuario) < 2000:
+    if str(_usuario)==str(u) and str(_password)==str(c) and admin:
         session["admin_login"]=True
         session["usuario_admin"]=str(nombre[0][0])
         return redirect("/admin")
