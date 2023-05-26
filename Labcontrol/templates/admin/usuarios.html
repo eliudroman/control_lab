@@ -6,7 +6,7 @@
 
 <section>
     <h2>Crear nuevo usuario</h2>
-    <form action="/admin/usuarios/crear" method="post" enctype="multipart/form-data">
+    <form action="/crear" method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="txtUsuario" class="form-label">Matricula</label>
             <input type="text" required
@@ -29,7 +29,7 @@
     </thead>
     <tbody>
         <tr>
-            <form action="/admin/usuarios/buscar" method="post" enctype="multipart/form-data">
+            <form action="/buscar" method="post" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="txtUsuario" class="form-label">Matricula</label>
                     <input type="text" class="form-control" name="txtUsuario" id="txtUsuario" aria-describedby="helpId"
@@ -40,7 +40,7 @@
         </tr>
         <tr>
             <th scope="row">
-                <form action="/admin/usuarios/borrar" method="post" enctype="multipart/form-data">
+                <form action="/borrar" method="post" enctype="multipart/form-data">
                     <button type="submit" class="btn btn-danger" value= "{{ matricula }}" name="txtID" id="txtID">Eliminar</button>
                 </form>
             </th>
@@ -49,7 +49,7 @@
             <td>{{ contraseña }}</td>
         </tr>
         <tr>
-            <form action="/admin/usuarios/editar" method="post" enctype="multipart/form-data">
+            <form action="/editar" method="post" enctype="multipart/form-data">
                 <td><button type="submit" class="btn btn-secondary">Editar</button></td>
                 <td><input type="text" name="txtMatricula" id="txtMatricula" required maxlength="10"></td>
                 <td><input type="text" name="txtNombre" id="txtNombre" maxlength="50"></td>
