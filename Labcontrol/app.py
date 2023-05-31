@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, request, redirect, session
+from flask import render_template, request, redirect, session, jsonify
 from flaskext.mysql import MySQL
 from datetime import datetime
 from flask import send_from_directory
@@ -185,15 +185,15 @@ def horarios():
             if(i<dia):
                 Horario.append("")
             if(i>=dia):
-                Horario.append(i)
+                Horario.append(str(i)+" / "+str(mes)+" / "+str(ano))
     for j in cal.monthdayscalendar(ano,mes+1):
         for i in j:
             if(i<1):
                 Horario.append("")
             if(i>=1):
-                Horario.append(i)
+                Horario.append(str(i)+" / "+str(mes+1)+" / "+str(ano))
     i = 0
-    while Horario[i] != dia:
+    while Horario[i] != str(dia)+" / "+str(mes)+" / "+str(ano):
         semanas_vacia = semanas_vacia + 1
         i = i+1
     
@@ -209,30 +209,70 @@ def horarios():
     return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario,tamano=len(Horario))
 
 
-@app.route("/horarios/solicitar", methods=["POST"])
-def solicitar_pc():
-    if not 'login' in session:
-        return redirect("/login")
-    matricula=""
-    for m in session:
-        matricula=m
-    print(matricula)
-    _matricula=session["matricula"]
-    _hora=request.form["txtHora"]
-    _computadora=request.form["txtComputadora"]
+@app.route("/reservas/crear", methods=["POST"])
+def crear_reserva():
+    responsable = request.form.get('responsable')
+    fecha = request.form.get('fecha')
+    hora = request.form.get('hora')
+    tipo = request.form.get('tipo')
 
-    tiempo=datetime.now()
-    horaActual=tiempo.strftime('%Y%H%M%S')
 
-    sql="INSERT INTO `reserva` (`id_reserva`, `id_laboratorio`, `id_responsable`, `fecha`) VALUES (NULL,%s,%s,%s);"
-    datos=(_computadora,_matricula,_hora)
+    print("----------------")
+    print(responsable)
+    print(fecha)
+    print(hora)
+    print(tipo)
+
+    sql="INSERT INTO `reserva` (`id_responsable`, `fecha`, `id_hora`,`id_lab`,`id_compu`,`id_materia`) VALUES (%s,%s,%s,%s,%s,%s);"
+    datos=(responsable,fecha,hora,"1","1","1")
     
     conexion=mysql.connect()
     cursor=conexion.cursor()
     cursor.execute(sql,datos)
     conexion.commit()
 
-    return redirect("/horarios")
+
+    return jsonify({'success': True})
+
+@app.route("/horarios/mostrar", methods=["POST"])
+def mostrar_disponibles():
+    fecha_seleccionada = request.form['fecha']
+
+    conexion = mysql.connect()
+    cursor = conexion.cursor()
+
+    cursor.execute("SELECT id_hora FROM `reserva` WHERE fecha=%s", (fecha_seleccionada,))
+    resultados = cursor.fetchall()
+
+    horas_reservadas = [resultado[0] for resultado in resultados]
+
+    diccionario_horas = {
+        1: '7:00 - 8:30',
+        2: '8:30 - 10:00',
+        3: '10:00 - 11:30',
+        4: '11:30 - 1:00',
+        5: '1:00 - 2:30',
+        6: '2:30 - 4:00',
+        7: '4:00 - 5:30',
+        8: '5:30 - 7:00',
+    }
+
+   
+    horas_totales = [1, 2, 3, 4, 5, 6, 7, 8]
+    horas_disponibles = [
+        {'valor': hora, 'texto': diccionario_horas[hora]}
+        for hora in horas_totales
+        if hora not in horas_reservadas
+    ]
+
+    conexion.commit()
+
+    print(horas_disponibles)
+    return jsonify(horas_disponibles)
+
+
+    
+
 #------------------------------reservas------horarios
 
 #---------administrador----------
