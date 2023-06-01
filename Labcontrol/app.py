@@ -216,13 +216,6 @@ def crear_reserva():
     hora = request.form.get('hora')
     tipo = request.form.get('tipo')
 
-
-    print("----------------")
-    print(responsable)
-    print(fecha)
-    print(hora)
-    print(tipo)
-
     sql="INSERT INTO `reserva` (`id_responsable`, `fecha`, `id_hora`,`id_lab`,`id_compu`,`id_materia`) VALUES (%s,%s,%s,%s,%s,%s);"
     datos=(responsable,fecha,hora,"1","1","1")
     
@@ -237,6 +230,7 @@ def crear_reserva():
 @app.route("/horarios/mostrar", methods=["POST"])
 def mostrar_disponibles():
     fecha_seleccionada = request.form['fecha']
+    modo = request.form['modo']
 
     conexion = mysql.connect()
     cursor = conexion.cursor()
@@ -257,21 +251,45 @@ def mostrar_disponibles():
         8: '5:30 - 7:00',
     }
 
-   
     horas_totales = [1, 2, 3, 4, 5, 6, 7, 8]
-    horas_disponibles = [
-        {'valor': hora, 'texto': diccionario_horas[hora]}
-        for hora in horas_totales
-        if hora not in horas_reservadas
-    ]
+
+    if(modo == "grupal"):
+        horas_disponibles = [
+            {'valor': hora, 'texto': diccionario_horas[hora]}
+            for hora in horas_totales
+            if hora not in horas_reservadas
+        ]
+    if(modo == "unico"):
+        horas_disponibles = [
+            {'valor': hora, 'texto': diccionario_horas[hora]}
+            for hora in horas_totales
+        ]
 
     conexion.commit()
 
-    print(horas_disponibles)
     return jsonify(horas_disponibles)
 
 
-    
+
+@app.route("/horarios/PC_disponible", methods=["POST"])
+def pc_dispobiles():
+    fecha_seleccionada = request.form['fecha']
+    hora_seleccionada = request.form['hora']
+
+    print("...............------")
+    print(fecha_seleccionada)
+    print(hora_seleccionada)
+    print("...............------")
+
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT id_compu FROM `reserva` WHERE fecha=%s AND id_hora=%s", (fecha_seleccionada, hora_seleccionada))
+    pcs=cursor.fetchall()
+    conexion.commit()
+
+    print(pcs)
+
+    return jsonify({'success': True})
 
 #------------------------------reservas------horarios
 

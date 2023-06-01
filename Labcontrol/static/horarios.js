@@ -10,6 +10,24 @@ for (let i of reservas) {
   }
 }
 
+var horaReserva1 = "";
+
+
+function guardarHoraSeleccionada() {
+  var select = document.getElementById("hora_reserva");
+  horaReserva1 = select.value;
+  console.log(horaReserva1)
+
+
+  $.post("/horarios/PC_disponible", { fecha: dia_seleccionado, hora: horaReserva1 }, function (response) {
+
+    console.log($('#menu_solicitud select').val())
+    console.log('Respuesta de la base de datos:', response);
+  });
+}
+
+
+
 
 document.addEventListener('DOMContentLoaded', function () {
   var solicitar_open = document.querySelectorAll('.solicitar');
@@ -25,62 +43,86 @@ document.addEventListener('DOMContentLoaded', function () {
     overlay.style.display = 'block';
     var miDiv = document.getElementById('diajsjs');
     miDiv.textContent = "Has seleccionado el día: " + dia_seleccionado.toString();
+    var form = document.getElementById("form_reserva");
+    form.reset();
+  }
 
-    // Hacer la solicitud AJAX para obtener las opciones del select
-    $.post("/horarios/mostrar", { fecha: dia_seleccionado }, function (data) {
-      var select = $('#menu_solicitud select'); // Obtén el elemento select dentro del modal
-      select.empty(); // Limpia las opciones existentes
+  // ...
 
-      // Agrega las nuevas opciones obtenidas desde el servidor
-      $.each(data, function (index, opcion) {
-        select.append($('<option>', {
-          value: opcion.valor,
-          text: opcion.texto
-        }));
-      });
-    });
-
-
-  // Agregar evento de escucha al botón de enviar del formulario
   $('#menu_solicitud form').submit(function (event) {
-    event.preventDefault(); // Evitar que se envíe el formulario de forma convencional
+    event.preventDefault();
 
-    // Obtener los valores ingresados por el usuario
     var responsable = $('#responsablejsjs').text();
     var tipoReserva = $('input[name=tipo_reserva]:checked').val();
     var horaReserva = $('#menu_solicitud select').val();
 
-    // Realizar la solicitud AJAX para enviar los datos al servidor
+
     $.post("/reservas/crear", {
       responsable: responsable,
       fecha: dia_seleccionado,
       hora: horaReserva,
       tipo: tipoReserva
     }, function (response) {
-      // Realizar cualquier acción adicional después de enviar los datos
-      console.log('Respuesta del servidor:', response);
+ 
+
     });
 
     // Cerrar la ventana emergente
     closePopup();
+
+    var selectHoraReserva = document.getElementById("hora_reserva");
+    selectHoraReserva.addEventListener("change", guardarHoraSeleccionada);
   });
-
-
-  }
-
-  // ...
-
 
 
   //selecccion de modo
   var opciones = document.getElementsByName('tipo_reserva');
 
-  // Agregar un controlador de eventos para cada opción
+
   opciones.forEach(function (opcion) {
-    opcion.addEventListener('change', function () {
-      // Verificar cuál opción ha sido seleccionada
+    opcion.addEventListener('click', function () {
+      
       if (opcion.checked) {
         console.log('Opción seleccionada:', opcion.value);
+
+        if (opcion.value == "grupal") {
+          $.post("/horarios/mostrar", { fecha: dia_seleccionado, modo : opcion.value}, function (data) {
+            var select = $('#menu_solicitud select');
+            select.empty();
+            select.append($('<option>', {
+              disabled: true,
+              selected: true,
+              value: '',
+              text: 'Selecciona una opción'
+            }));
+
+            $.each(data, function (index, opcion) {
+              select.append($('<option>', {
+                value: opcion.valor,
+                text: opcion.texto
+              }));
+            });
+          });
+        }
+        if (opcion.value == "unico") {
+          $.post("/horarios/mostrar", { fecha: dia_seleccionado, modo : opcion.value}, function (data) {
+            var select = $('#menu_solicitud select');
+            select.empty();
+            select.append($('<option>', {
+              disabled: true,
+              selected: true,
+              value: '',
+              text: 'Selecciona una opción'
+            }));
+
+            $.each(data, function (index, opcion) {
+              select.append($('<option>', {
+                value: opcion.valor,
+                text: opcion.texto
+              }));
+            });
+          });
+        }
       }
     });
   });
@@ -101,10 +143,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Cerrar la ventana emergente al hacer clic fuera de ella
   overlay.addEventListener('click', closePopup);
+
+  var selectHoraReserva = document.getElementById("hora_reserva");
+  selectHoraReserva.addEventListener("change", guardarHoraSeleccionada);
+
 });
-
-
-
-/////
-
 
