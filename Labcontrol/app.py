@@ -32,7 +32,8 @@ def inicio():
     
     return render_template("sitio/index.html", usuarios=usuarios)
 
-#-----------------
+#------------
+
 
 @app.route("/login")
 def login():

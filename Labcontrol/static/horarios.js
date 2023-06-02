@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var tipoReserva = $('input[name=tipo_reserva]:checked').val();
     var horaReserva = $('#menu_solicitud select').val();
 
+    
 
     $.post("/reservas/crear", {
       responsable: responsable,
