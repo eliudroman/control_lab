@@ -44,10 +44,15 @@
         <h2>Reserva</h2>
       <p>Reserva una computadora o un laboratorio</p>
       <div id="diajsjs"></div>
+      Laboratorio:
+      {% for i in range(labs) %}
+        {{ i+1 }}
+        <input type="radio" name="tipo_laboratorio" id="" value="lab_{{ i+1 }}">
+      {% endfor %}
+      <br>
       <div id="responsablejsjs" style="display: none;">{{  session["matricula"] }}</div>
       Unico: <input type="radio" name="tipo_reserva" id="" value="unico">
       Grupal: <input type="radio" name="tipo_reserva" id="" value="grupal">
-
       <br>
       <select name="hora_reserva" id="hora_reserva">
       </select>

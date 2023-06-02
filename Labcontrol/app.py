@@ -206,7 +206,13 @@ def horarios():
         for k in range(0,int(semanas_vacia/7)*7):
             Horario.remove(Horario[0])
 
-    return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario,tamano=len(Horario))
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT COUNT(DISTINCT id_laboratorio) AS cantidad_laboratorios FROM compu;")
+    labs=cursor.fetchone()[0]
+    conexion.commit()
+
+    return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario,tamano=len(Horario),labs=labs)
 
 
 @app.route("/reservas/crear", methods=["POST"])
@@ -215,9 +221,10 @@ def crear_reserva():
     fecha = request.form.get('fecha')
     hora = request.form.get('hora')
     tipo = request.form.get('tipo')
+    laboratorio = request.form.get('laboratorio')
 
     sql="INSERT INTO `reserva` (`id_responsable`, `fecha`, `id_hora`,`id_lab`,`id_compu`,`id_materia`) VALUES (%s,%s,%s,%s,%s,%s);"
-    datos=(responsable,fecha,hora,"1","1","1")
+    datos=(responsable,fecha,hora,laboratorio,"1","1")
     
     conexion=mysql.connect()
     cursor=conexion.cursor()
@@ -231,12 +238,17 @@ def crear_reserva():
 def mostrar_disponibles():
     fecha_seleccionada = request.form['fecha']
     modo = request.form['modo']
+    laboratorio = request.form['laboratorio']
 
     conexion = mysql.connect()
     cursor = conexion.cursor()
 
-    cursor.execute("SELECT id_hora FROM `reserva` WHERE fecha=%s", (fecha_seleccionada,))
+    cursor.execute("SELECT id_hora FROM `reserva` WHERE fecha=%s AND id_lab=%s", (fecha_seleccionada,laboratorio))
     resultados = cursor.fetchall()
+
+    print("-------------")
+    print(resultados)
+    print("-------------")
 
     horas_reservadas = [resultado[0] for resultado in resultados]
 
@@ -284,10 +296,16 @@ def pc_dispobiles():
     conexion=mysql.connect()
     cursor=conexion.cursor()
     cursor.execute("SELECT id_compu FROM `reserva` WHERE fecha=%s AND id_hora=%s", (fecha_seleccionada, hora_seleccionada))
-    pcs=cursor.fetchall()
+    pcs_uso=cursor.fetchall()
     conexion.commit()
 
-    print(pcs)
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT id_compu FROM `reserva`")
+    pcs_disponibles=cursor.fetchall()
+    conexion.commit()
+
+    print(pcs_disponibles)
 
     return jsonify({'success': True})
 

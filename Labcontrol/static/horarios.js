@@ -61,7 +61,8 @@ document.addEventListener('DOMContentLoaded', function () {
       responsable: responsable,
       fecha: dia_seleccionado,
       hora: horaReserva,
-      tipo: tipoReserva
+      tipo: tipoReserva,
+      laboratorio: lab_seleccionado
     }, function (response) {
  
 
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Opción seleccionada:', opcion.value);
 
         if (opcion.value == "grupal") {
-          $.post("/horarios/mostrar", { fecha: dia_seleccionado, modo : opcion.value}, function (data) {
+          $.post("/horarios/mostrar", { fecha: dia_seleccionado, modo: opcion.value, laboratorio: lab_seleccionado}, function (data) {
             var select = $('#menu_solicitud select');
             select.empty();
             select.append($('<option>', {
@@ -105,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
         }
         if (opcion.value == "unico") {
-          $.post("/horarios/mostrar", { fecha: dia_seleccionado, modo : opcion.value}, function (data) {
+          $.post("/horarios/mostrar", { fecha: dia_seleccionado, modo : opcion.value, laboratorio: lab_seleccionado}, function (data) {
             var select = $('#menu_solicitud select');
             select.empty();
             select.append($('<option>', {
@@ -126,6 +127,26 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+//////
+
+
+  //selecccion de modo
+  var opciones_lab = document.getElementsByName('tipo_laboratorio');
+  var lab_seleccionado = "";
+
+  opciones_lab.forEach(function (opcion) {
+    opcion.addEventListener('click', function () {
+      
+      if (opcion.checked) {
+        console.log('Opción seleccionada:', opcion.value);
+        lab_seleccionado = opcion.value[opcion.value.length - 1];
+        console.log(lab_seleccionado)
+      }
+    });
+  });
+
+
 
   // Función para cerrar la ventana emergente
   function closePopup() {
