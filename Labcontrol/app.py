@@ -32,7 +32,8 @@ def inicio():
     
     return render_template("sitio/index.html", usuarios=usuarios)
 
-#-----------------
+#------------
+
 
 @app.route("/login")
 def login():
@@ -141,7 +142,6 @@ def signup_post():
     return render_template("sitio/login.html")
 
 
-
 @app.route("/cerrar")
 def login_cerrar():
     session.clear()
@@ -206,7 +206,13 @@ def horarios():
         for k in range(0,int(semanas_vacia/7)*7):
             Horario.remove(Horario[0])
 
-    return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario,tamano=len(Horario))
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT COUNT(DISTINCT id_laboratorio) AS cantidad_laboratorios FROM compu;")
+    labs=cursor.fetchone()[0]
+    conexion.commit()
+
+    return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario,tamano=len(Horario),labs=labs)
 
 
 @app.route("/reservas/crear", methods=["POST"])
@@ -215,16 +221,11 @@ def crear_reserva():
     fecha = request.form.get('fecha')
     hora = request.form.get('hora')
     tipo = request.form.get('tipo')
-
-
-    print("----------------")
-    print(responsable)
-    print(fecha)
-    print(hora)
-    print(tipo)
+    laboratorio = request.form.get('laboratorio')
+    computadora = request.form.get('computadora')
 
     sql="INSERT INTO `reserva` (`id_responsable`, `fecha`, `id_hora`,`id_lab`,`id_compu`,`id_materia`) VALUES (%s,%s,%s,%s,%s,%s);"
-    datos=(responsable,fecha,hora,"1","1","1")
+    datos=(responsable,fecha,hora,laboratorio,computadora,"1")
     
     conexion=mysql.connect()
     cursor=conexion.cursor()
@@ -237,11 +238,13 @@ def crear_reserva():
 @app.route("/horarios/mostrar", methods=["POST"])
 def mostrar_disponibles():
     fecha_seleccionada = request.form['fecha']
+    modo = request.form['modo']
+    laboratorio = request.form['laboratorio']
 
     conexion = mysql.connect()
     cursor = conexion.cursor()
 
-    cursor.execute("SELECT id_hora FROM `reserva` WHERE fecha=%s", (fecha_seleccionada,))
+    cursor.execute("SELECT id_hora FROM `reserva` WHERE fecha=%s AND id_lab=%s", (fecha_seleccionada,laboratorio))
     resultados = cursor.fetchall()
 
     horas_reservadas = [resultado[0] for resultado in resultados]
@@ -257,21 +260,65 @@ def mostrar_disponibles():
         8: '5:30 - 7:00',
     }
 
-   
     horas_totales = [1, 2, 3, 4, 5, 6, 7, 8]
-    horas_disponibles = [
-        {'valor': hora, 'texto': diccionario_horas[hora]}
-        for hora in horas_totales
-        if hora not in horas_reservadas
-    ]
+
+    if(modo == "grupal"):
+        horas_disponibles = [
+            {'valor': hora, 'texto': diccionario_horas[hora]}
+            for hora in horas_totales
+            if hora not in horas_reservadas
+        ]
+    if(modo == "unico"):
+        horas_disponibles = [
+            {'valor': hora, 'texto': diccionario_horas[hora]}
+            for hora in horas_totales
+        ]
 
     conexion.commit()
 
-    print(horas_disponibles)
     return jsonify(horas_disponibles)
 
 
+
+@app.route("/horarios/PC_disponible", methods=["POST"])
+def pc_dispobiles():
+    fecha_seleccionada = request.form['fecha']
+    hora_seleccionada = request.form['hora']
+    laboratorio = request.form['laboratorio']
+
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT id_compu FROM `reserva` WHERE fecha=%s AND id_hora=%s AND id_lab=%s", (fecha_seleccionada, hora_seleccionada, laboratorio))
+    pcs_uso=cursor.fetchall()
+    conexion.commit()
+
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT id_compu FROM `compu` WHERE id_laboratorio=%s",(laboratorio))
+    pcs_disponibles=cursor.fetchall()
+    conexion.commit()
+
+    pcs_dict = {}  # Diccionario para almacenar la información de las computadoras
+
+    # Agregar las computadoras disponibles al diccionario
+    for pc in pcs_disponibles:
+        pc_id = pc[0]
+        pcs_dict[pc_id] = {"disponible": "Disponible"}
+
+    # Actualizar el estado de disponibilidad de las computadoras en uso
+    for pc in pcs_uso:
+        pc_id = pc[0]
+        if pc_id in pcs_dict:
+            pcs_dict[pc_id]["disponible"] = "No disponible"
+
+    # Convertir el diccionario en una lista de diccionarios
+    pcs_disponibles_list = []
+    for pc_id, pc_info in pcs_dict.items():
+        pc_dict = {"computadora": pc_id, "disponible": pc_info["disponible"]}
+        pcs_disponibles_list.append(pc_dict)
+
     
+    return jsonify(pcs_disponibles_list)
 
 #------------------------------reservas------horarios
 
