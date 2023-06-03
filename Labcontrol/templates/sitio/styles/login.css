@@ -21,7 +21,7 @@ a:active {
 }
 .container{
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   width: 100vw;
   height: 100vh;
@@ -45,6 +45,7 @@ a:active {
   overflow: visible;
   padding: 3em;
   border-radius: 20px; 
+  margin-top: 4em;
 }
 
 .bx.bx-receipt{
@@ -76,12 +77,7 @@ a:active {
   width:80%;
   height:10em;
 }
-.card{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
+
 .card-body{
   padding: 1em;
 }
@@ -145,7 +141,7 @@ a:active {
   line-height: 15px;
   color: #ffffff;
   transition: all 0.6s cubic-bezier(0.15, 0.83, 0.66, 1);
-
+  cursor: pointer;
 }
 @media (max-width: 767px) {
   .contenido {
@@ -163,7 +159,8 @@ a:active {
     
   }
   .container{
-    width: 100vw;
+    align-items: baseline;
+    padding-top: 3em;
   }
   .row{
     margin: 4em 2em;
