@@ -6,28 +6,29 @@
     font-family: 'Poppins', sans-serif;
     text-decoration: none;
     list-style-type: none;
-  }
-  :root{
+}
+:root{
     --color-blue: #115DFC;
     --color-blue-gradiente: linear-gradient(180deg, #4480FF 0%, #115DFC 50%, #0550ED 100%);
     --color-violet: rgb(238, 103, 238);
-  }
-  a:link,
-  a:visited,
-  a:hover,
-  a:active {
-    color: black;
-    text-decoration: none;
-  }
-  .container{
+}
+a:link,
+a:visited,
+a:hover,
+a:active {
+  color: var(--color-blue);
+  text-decoration: none;
+}
+
+.container{
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: center;
     width: 100vw;
     height: 100vh;
-  }
-  
-  .contenido{
+    box-sizing: border-box;
+}
+.contenido{
     display: flex;
     align-items: center;
     justify-content: center;
@@ -45,43 +46,32 @@
     overflow: visible;
     padding: 3em;
     border-radius: 20px; 
-    margin-top: 4em;
-  }
-  
-  .bx.bx-receipt{
-    font-size: 3em;
-  }
-  .contenido:hover {
-     border-top: 2px solid blueviolet;
-   border-left: 2px solid blueviolet;
-   border-bottom: 2px solid rgb(238, 103, 238);
-   border-right: 2px solid rgb(238, 103, 238);
-   box-shadow: rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px, rgba(240, 46, 170, 0.2) 15px 15px, rgba(240, 46, 170, 0.1) 20px 20px, rgba(240, 46, 170, 0.05) 25px 25px;
-   }
-  .bienvenida{
-    width:80%;
-    height:10em;
+}
+.contenido:hover {
+    border-top: 2px solid blueviolet;
+  border-left: 2px solid blueviolet;
+  border-bottom: 2px solid rgb(238, 103, 238);
+  border-right: 2px solid rgb(238, 103, 238);
+  box-shadow: rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px, rgba(240, 46, 170, 0.2) 15px 15px, rgba(240, 46, 170, 0.1) 20px 20px, rgba(240, 46, 170, 0.05) 25px 25px;
+}
+.row{
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 30px;
-  }
-  
-  .row{
+    width:90%;
+    height:30em;
+}
+
+.card-header{
+    text-align: center;
+}
+.card-body{
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-left: 2em;
-    width:80%;
-    height:10em;
-  }
-  
-  .card-body{
-    padding: 1em;
-  }
-  .form-control{
+    padding: 1em;    
+}
+
+.form-control{
     width: auto;
     height: 40px;
     padding: 0 0 0 40px;
@@ -91,39 +81,23 @@
     filter: drop-shadow(0px 1px 0px #efefef)
       drop-shadow(0px 1px 0.5px rgba(239, 239, 239, 0.5));
     transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
-  }
-  .form-control:focus {
+}
+.form-control:focus {
     border: 1px solid transparent;
     box-shadow: 0px 0px 0px 3px var(--color-blue);
     background-color: transparent;
-  }
-  
-  .form{
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-  }
-  .bx.bx-user{
-    width: 20px;
-    position: absolute;
-    z-index: 99;
-    left: 12px;
-    bottom: 12px;
-  }
-  .bx.bxs-key{
-    width: 20px;
-    position: absolute;
-    z-index: 99;
-    left: 12px;
-    bottom: 12px;
-  }
-  .mb-3{
+}
+.form-label{
+    display: block;
+}
+.mb-3{
+    margin-top: 10px;
     width: 100%;
     position: relative;
     display: flex;
     flex-direction: column;
-  }
-  .btn.btn-success{
+}
+.btn.btn-success{
     display: flex;
     flex-direction: row;
     justify-content: center;  
@@ -141,11 +115,24 @@
     line-height: 15px;
     color: #ffffff;
     transition: all 0.6s cubic-bezier(0.15, 0.83, 0.66, 1);
+    margin-top: 10px;
     cursor: pointer;
-  }
-  @media (max-width: 767px) {
+}
+i {
+    width: 20px;
+    position: absolute;
+    z-index: 99;
+    left: 12px;
+    bottom: 12px;
+}
+.rule{
+    font-size: .8em;
+    text-align: center;
+}
+@media (max-width: 767px) {
     .contenido {
         flex-direction: column;
+        align-items: baseline;
         padding: 2em 0;
         margin: 0em 1em;
         width: 90vw;
@@ -159,10 +146,20 @@
       
     }
     .container{
-      align-items: baseline;
-      padding-top: 3em;
+        align-items: baseline;
+        padding-top: 3em;
     }
     .row{
       margin: 4em 2em;
+      height: 25em;
+      width: 90%;
     }
-  }
+    .btn.btn-success{
+      margin-top: 20px; 
+    }
+}  
+@media (max-width: 500px) {
+    .row{
+        width: 80%;
+    }
+}
