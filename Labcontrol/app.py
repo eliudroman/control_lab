@@ -24,13 +24,8 @@ def inicio():
     if not 'login' in session:
         return redirect("/login")
     
-    conexion=mysql.connect()
-    cursor=conexion.cursor()
-    cursor.execute("SELECT * FROM `usuario`")
-    usuarios=cursor.fetchall()
-    conexion.commit()
     
-    return render_template("sitio/index.html", usuarios=usuarios)
+    return render_template("sitio/index.html")
 
 #------------
 
@@ -322,67 +317,11 @@ def pc_dispobiles():
 
 #------------------------------reservas------horarios
 
-#---------administrador----------
+@app.route("/reservas")
+def reservas():
 
+    return render_template("admin/reservas.html")
 
-
-
-@app.route("/admin/")
-def admin_index():
-    if not 'login' in session:
-        return redirect("/login")
-    return render_template("sitio/index.html")
-
-@app.route("/admin/login")
-def admin_login():
-    return render_template("admin/login.html")
-
-@app.route("/admin/login", methods=['POST'])
-def admin_login_post():
-    _usuario=request.form['txtUsuario']
-    _password=request.form['txtPassword']
-
-    conexion=mysql.connect()
-    cursor=conexion.cursor()
-    cursor.execute("SELECT id_usuario,contrasena FROM `usuario` WHERE id_usuario=%s",(_usuario))
-    correcto=cursor.fetchall()
-    conexion.commit()
-
-    
-    conexion=mysql.connect()
-    cursor=conexion.cursor()
-    cursor.execute("SELECT id_curso FROM grupo WHERE usuario=%s",(_usuario))
-    cursos=cursor.fetchall()
-    conexion.commit()
-
-    c="INCORRECTA"
-    u="INCORRECTA"
-    for a in correcto:
-        u=a[0]
-    for a in correcto:
-        c=a[1]
-    admin = False
-    for a in cursos:
-        if(str(a[0]) == "ADMI"):
-            admin = True
-
-    conexion=mysql.connect()
-    cursor=conexion.cursor()
-    cursor.execute("SELECT nombre FROM `usuario` WHERE id_usuario=%s",(_usuario))
-    nombre=cursor.fetchall()
-    conexion.commit()
-    
-    if str(_usuario)==str(u) and str(_password)==str(c) and admin:
-        session["admin_login"]=True
-        session["usuario_admin"]=str(nombre[0][0])
-        return redirect("/admin")
-
-    return render_template("admin/login.html")
-
-@app.route("/admin/cerrar")
-def admin_login_cerrar():
-    session.clear()
-    return redirect("/login")
 
 #---------------------------------Usuarios---------------------------------------------Usuarios Admin
 

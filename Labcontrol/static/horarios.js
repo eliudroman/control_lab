@@ -34,7 +34,7 @@ for (let i of reservas) {
 
 var horaReserva1 = "";
 var botonesPC = false
-
+var modo_selecionado;
 
 function guardarHoraSeleccionada() {
   var select = document.getElementById("hora_reserva");
@@ -51,44 +51,82 @@ function guardarHoraSeleccionada() {
     eliminarBotones();
   }
 
-  $.post("/horarios/PC_disponible", { fecha: dia_seleccionado, hora: horaReserva1, laboratorio: lab_seleccionado }, function (response) {
-    console.log('Respuesta de la base de datos:', response);
-    var formReserva = $('#form_reserva'); // Obtener el formulario por su ID
-    var selectedPC = null; // Variable para almacenar la computadora seleccionada
+  if(modo_selecionado == "grupal") {
+    var selectedPC = null;
+    var formReserva = $('#form_reserva');
+    var pcButton = $('<button></button>'); // Crear un elemento de botón
+    pcButton.text("Reservar"); // Establecer el texto del botón
+    pcButton.val(1); // Asignar el valor del ID de la computadora al botón
 
-    $.each(response, function (index, pc) {
-      var pcButton = $('<button></button>'); // Crear un elemento de botón
-      pcButton.text('Computadora ' + pc.computadora); // Establecer el texto del botón
-      pcButton.val(pc.computadora); // Asignar el valor del ID de la computadora al botón
+    pcButton.on('click', function () {
+      selectedPC = $(this).val(); // Almacenar el valor del botón en la variable selectedPC
+      console.log('Computadora seleccionada:', selectedPC);
 
-      if (pc.disponible === 'Disponible') {
-        pcButton.prop('disabled', false); // Habilitar el botón si está disponible
-      } else {
-        pcButton.prop('disabled', true); // Deshabilitar el botón si no está disponible
-      }
+      // Realizar la reserva con la computadora seleccionada
+      
 
-      pcButton.on('click', function () {
-        selectedPC = $(this).val(); // Almacenar el valor del botón en la variable selectedPC
-        console.log('Computadora seleccionada:', selectedPC);
-
-        // Realizar la reserva con la computadora seleccionada
-        $.post("/reservas/crear", {
-          responsable: $('#responsablejsjs').text(),
-          fecha: dia_seleccionado,
-          hora: horaReserva1,
-          tipo: $('input[name=tipo_reserva]:checked').val(),
-          laboratorio: lab_seleccionado,
-          computadora: selectedPC // Añadir la computadora seleccionada a los datos de reserva
-        }, function (response) {
-          console.log('Reserva realizada:', response);
-        });
+      
+      $.post("/reservas/crear", {
+        responsable: $('#responsablejsjs').text(),
+        fecha: dia_seleccionado,
+        hora: horaReserva1,
+        tipo: $('input[name=tipo_reserva]:checked').val(),
+        laboratorio: lab_seleccionado,
+        computadora: selectedPC // Añadir la computadora seleccionada a los datos de reserva
+      }, function (response) {
+        console.log('Reserva realizada:', response);
       });
+      
 
-      pcButton.addClass('computadora-button');
-      pcButton.appendTo(formReserva); // Agregar el botón al formulario
     });
+
+    pcButton.addClass('computadora-button');
+    pcButton.appendTo(formReserva); // Agregar el botón al formulario
     botonesPC = true;
-  });
+
+
+  }
+
+  else {
+    $.post("/horarios/PC_disponible", { fecha: dia_seleccionado, hora: horaReserva1, laboratorio: lab_seleccionado }, function (response) {
+      console.log('Respuesta de la base de datos:', response);
+      var formReserva = $('#form_reserva'); // Obtener el formulario por su ID
+      var selectedPC = null; // Variable para almacenar la computadora seleccionada
+  
+      $.each(response, function (index, pc) {
+        var pcButton = $('<button></button>'); // Crear un elemento de botón
+        pcButton.text('Computadora ' + pc.computadora); // Establecer el texto del botón
+        pcButton.val(pc.computadora); // Asignar el valor del ID de la computadora al botón
+  
+        if (pc.disponible === 'Disponible') {
+          pcButton.prop('disabled', false); // Habilitar el botón si está disponible
+        } else {
+          pcButton.prop('disabled', true); // Deshabilitar el botón si no está disponible
+        }
+  
+        pcButton.on('click', function () {
+          selectedPC = $(this).val(); // Almacenar el valor del botón en la variable selectedPC
+          console.log('Computadora seleccionada:', selectedPC);
+  
+          // Realizar la reserva con la computadora seleccionada
+          $.post("/reservas/crear", {
+            responsable: $('#responsablejsjs').text(),
+            fecha: dia_seleccionado,
+            hora: horaReserva1,
+            tipo: $('input[name=tipo_reserva]:checked').val(),
+            laboratorio: lab_seleccionado,
+            computadora: selectedPC // Añadir la computadora seleccionada a los datos de reserva
+          }, function (response) {
+            console.log('Reserva realizada:', response);
+          });
+        });
+  
+        pcButton.addClass('computadora-button');
+        pcButton.appendTo(formReserva); // Agregar el botón al formulario
+      });
+      botonesPC = true;
+    });
+  }
 }
 
 
@@ -111,36 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
     form.reset();
   }
 
-  // ...
-/*
-  $('#menu_solicitud form').submit(function (event) {
-    event.preventDefault();
-
-    var responsable = $('#responsablejsjs').text();
-    var tipoReserva = $('input[name=tipo_reserva]:checked').val();
-    var horaReserva = $('#menu_solicitud select').val();
-
-
-
-    $.post("/reservas/crear", {
-      responsable: responsable,
-      fecha: dia_seleccionado,
-      hora: horaReserva,
-      tipo: tipoReserva,
-      laboratorio: lab_seleccionado
-    }, function (response) {
- 
-
-    });
-
-    // Cerrar la ventana emergente
-    closePopup();
-
-    var selectHoraReserva = document.getElementById("hora_reserva");
-    selectHoraReserva.addEventListener("change", guardarHoraSeleccionada);
-  });
-*/
-
+  
   //selecccion de modo
   var opciones = document.getElementsByName('tipo_reserva');
 
@@ -150,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
       
       if (opcion.checked) {
         console.log('Opción seleccionada:', opcion.value);
-        
+        modo_selecionado = opcion.value;
         if (opcion.value == "grupal") {
           $.post("/horarios/mostrar", { fecha: dia_seleccionado, modo: opcion.value, laboratorio: lab_seleccionado}, function (data) {
             var select = $('#menu_solicitud select');
@@ -168,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 text: opcion.texto
               }));
             });
+            
           });
         }
         if (opcion.value == "unico") {
