@@ -1,11 +1,13 @@
 from flask import Flask
 from flask import render_template, request, redirect, session, jsonify
 from flaskext.mysql import MySQL
-from datetime import datetime
 from flask import send_from_directory
 import os
-from datetime import date
 import calendar
+from datetime import datetime, date
+
+
+from flask import current_app
 ####
 app=Flask(__name__)
 app.secret_key="UPIIT"
@@ -23,11 +25,47 @@ mysql.init_app(app)
 def inicio():
     if not 'login' in session:
         return redirect("/login")
-    
-    
-    return render_template("sitio/index.html")
+
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT id_reserva, fecha, id_hora FROM `reserva` WHERE id_responsable=%s",(session["matricula"]))
+    reservas=cursor.fetchall()
+    conexion.commit()
+
+    now = date.today()
+
+    fecha_actual = now.strftime("%d / %m / %Y")
+
+    diccionario_horas = [
+        '7:00 - 8:30',
+        '8:30 - 10:00',
+        '10:00 - 11:30',
+        '11:30 - 1:00',
+        '1:00 - 2:30',
+        '2:30 - 4:00',
+        '4:00 - 5:30',
+        '5:30 - 7:00',
+    ]
+
+    reservas_modificadas = []
+    for reserva in reservas:
+        fecha_reserva = datetime.strptime(reserva[1], "%d / %m / %Y").date()
+        if fecha_reserva >= now:
+            reserva_lista = list(reserva)
+            numero = reserva[2]
+            hora = diccionario_horas[numero-1]
+            reserva_lista[2] = hora
+            reservas_modificadas.append(tuple(reserva_lista))
+
+    return render_template("sitio/index.html", reservas=reservas_modificadas)
 
 #------------
+
+@app.route('/favicon.ico')
+def favicon():
+    return current_app.send_static_file('favicon.ico')
+
+
 
 
 @app.route("/login")
@@ -317,10 +355,46 @@ def pc_dispobiles():
 
 #------------------------------reservas------horarios
 
+
 @app.route("/reservas")
 def reservas():
+    if not 'login' in session:
+        return redirect("/login")
 
-    return render_template("admin/reservas.html")
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("SELECT id_reserva, fecha, id_hora FROM `reserva`")
+    reservas=cursor.fetchall()
+    conexion.commit()
+
+    now = date.today()
+
+    fecha_actual = now.strftime("%d / %m / %Y")
+
+    diccionario_horas = [
+        '7:00 - 8:30',
+        '8:30 - 10:00',
+        '10:00 - 11:30',
+        '11:30 - 1:00',
+        '1:00 - 2:30',
+        '2:30 - 4:00',
+        '4:00 - 5:30',
+        '5:30 - 7:00',
+    ]
+
+    reservas_modificadas = []
+    for reserva in reservas:
+        fecha_reserva = datetime.strptime(reserva[1], "%d / %m / %Y").date()
+        if fecha_reserva >= now:
+            reserva_lista = list(reserva)
+            numero = reserva[2]
+            hora = diccionario_horas[numero-1]
+            reserva_lista[2] = hora
+            reservas_modificadas.append(tuple(reserva_lista))
+
+    
+    return render_template("admin/reservas.html", reservas=reservas_modificadas)
+
 
 
 #---------------------------------Usuarios---------------------------------------------Usuarios Admin

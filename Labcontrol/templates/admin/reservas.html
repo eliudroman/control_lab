@@ -3,5 +3,19 @@
 
 <h1>Reservas</h1>
 
+{% for reserva in reservas %}
+
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Reserva</h4>
+                <p class="card-text">Fecha: {{ reserva[2] }}</p>
+                <p class="card-text">Hora: {{ reserva[3] }}</p>
+            </div>
+        </div>
+    </div>
+
+    {% endfor %}
+
 
 {% include "admin/pie.html" %}
