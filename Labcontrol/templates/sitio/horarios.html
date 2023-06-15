@@ -3,34 +3,40 @@
 
 
 <h1>
-    Reserva
+    Calendario {{ meses }}
 </h1>
 
-<div class="col-md-7">
+<br>
 
-    <div class="table-responsive">
-        <table class="table table-primary">
-            <thead>
-                <tr>
-                    <th>Lunes</th>
-                    <th>Martes</th>
-                    <th>Miercoles</th>
-                    <th>Jueves</th>
-                    <th>Viernes</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for i in range (0,tamano,7) %}
-                <tr>
-                    {% for j in range(0,5) %}
-                    <td class="solicitar">{{ Horario[j+i][0:2] }}
-                        <div style="display: none;">{{ Horario[j+i] }}</div>
-                    </td>
+<div class="centrado">
+    <div class="col-md-7">
+
+        <div class="table-responsive">
+            <table class="table table-primary">
+                <thead>
+                    <tr>
+                        <th>Lunes</th>
+                        <th>Martes</th>
+                        <th>Miercoles</th>
+                        <th>Jueves</th>
+                        <th>Viernes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range (0,tamano,7) %}
+                    <tr>
+                        {% for j in range(0,5) %}
+                        <td class="solicitar">{{ Horario[j+i][0:2] }}
+                            <div style="display: none;">{{ Horario[j+i] }}</div>
+                        </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+    
+    
     </div>
 
 
@@ -61,7 +67,10 @@
             <select name="hora_reserva" id="hora_reserva">
             </select>
             <br>
+            <br>
             <button id="close-btn">Cancelar</button>
+            <br>
+            <br>
 
         </form>
     </div>

@@ -3,7 +3,7 @@
     top: 0;
     right: 0;
     width: 50%;
-    height: 50%;
+    height: 60%;
     background-color: #fff;
     z-index: 9999;
     transform: translateX(100%);
@@ -31,5 +31,27 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 9998;
     display: none;
+  }
+
+  .centrado {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+  }
+  
+
+  .hover-color:hover {
+    background-color: #78a1b3; /* Reemplaza con el color deseado */
+  }
+
+  .table-responsive td {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .table-responsive th {
+    text-align: center;
+    vertical-align: middle;
   }
   

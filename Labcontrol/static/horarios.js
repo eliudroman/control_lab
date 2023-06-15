@@ -64,6 +64,8 @@ function guardarHoraSeleccionada() {
     pcButton.textContent = "Reservar"; // Establecer el texto del botón
     pcButton.value = 1; // Asignar el valor del ID de la computadora al botón
 
+    
+
     pcButton.addEventListener('click', function () {
       selectedPC = this.value; // Almacenar el valor del botón en la variable selectedPC
       console.log('Computadora seleccionada:', selectedPC);
@@ -113,8 +115,19 @@ function guardarHoraSeleccionada() {
 
           response.forEach(function (pc) {
             var pcButton = document.createElement('button'); // Crear un elemento de botón
-            pcButton.textContent = 'Computadora ' + pc.computadora; // Establecer el texto del botón
             pcButton.value = pc.computadora; // Asignar el valor del ID de la computadora al botón
+
+            var img = document.createElement('img'); // Crear un elemento de imagen
+            img.src = 'https://cdn-icons-png.flaticon.com/512/4449/4449619.png'; // Establecer la ruta de la imagen
+            img.alt = 'Imagen de computadora'; // Establecer el texto alternativo de la imagen
+            img.style.width = '50px'; // Establecer el ancho de la imagen
+            img.style.height = '50px'; // Establecer la altura de la imagen
+
+            var pcNumber = document.createElement('span'); // Crear un elemento de texto
+            pcNumber.textContent = pc.computadora; // Establecer el número de la computadora como texto
+
+            pcButton.appendChild(img); // Agregar la imagen al botón
+            pcButton.appendChild(pcNumber);
 
             if (pc.disponible === 'Disponible') {
               pcButton.disabled = false; // Habilitar el botón si está disponible
@@ -178,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var closeBtn = document.getElementById('close-btn');
   var overlay = document.querySelector('.overlay');
 
+
   // ...
 
   // Función para abrir la ventana emergente
@@ -200,6 +214,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (opcion.checked) {
         console.log('Opción seleccionada:', opcion.value);
         modo_selecionado = opcion.value;
+
+        eliminarBotones();
 
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/horarios/mostrar", true);
@@ -260,8 +276,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Agregar eventos de clic a todas las casillas popup-trigger
   solicitar_open.forEach(function (trigger) {
-    trigger.addEventListener('click', openPopup);
+    if (trigger.textContent.trim() !== "") {
+      trigger.addEventListener('mouseover', function () {
+        trigger.classList.add('hover-color');
+      });
+      trigger.addEventListener('mouseout', function () {
+        trigger.classList.remove('hover-color');
+      });
+      trigger.addEventListener('click', openPopup);
+    }
   });
+
 
   // Cerrar la ventana emergente al hacer clic en el botón de cerrar
   closeBtn.addEventListener('click', closePopup);

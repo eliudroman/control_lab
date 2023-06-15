@@ -5,7 +5,7 @@ from flask import send_from_directory
 import os
 import calendar
 from datetime import datetime, date
-
+import locale
 
 from flask import current_app
 ####
@@ -57,6 +57,7 @@ def inicio():
             reserva_lista[2] = hora
             reservas_modificadas.append(tuple(reserva_lista))
 
+
     return render_template("sitio/index.html", reservas=reservas_modificadas)
 
 #------------
@@ -66,6 +67,10 @@ def favicon():
     return current_app.send_static_file('favicon.ico')
 
 
+@app.route("/reglamento")
+def reglamento():
+
+    return render_template("admin/reglamento.html")
 
 
 @app.route("/login")
@@ -245,7 +250,19 @@ def horarios():
     labs=cursor.fetchone()[0]
     conexion.commit()
 
-    return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario,tamano=len(Horario),labs=labs)
+    locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+
+    mes = datetime.now().month
+
+    mes_siguiente = mes + 1
+    if mes_siguiente > 12:
+        mes_siguiente = 1
+
+    nombre_mes_siguiente = calendar.month_name[mes_siguiente].capitalize()
+    nombre_mes_actual = calendar.month_name[mes].capitalize()
+    print(nombre_mes_actual,nombre_mes_siguiente)
+
+    return render_template("sitio/horarios.html",solicitud=solicitud,Horario=Horario,tamano=len(Horario),labs=labs,meses=nombre_mes_actual+"/"+nombre_mes_siguiente)
 
 
 @app.route("/reservas/crear", methods=["POST"])
@@ -355,6 +372,19 @@ def pc_dispobiles():
 
 #------------------------------reservas------horarios
 
+@app.route("/cancelar_reserva", methods=["POST"])
+def cancelar_reserva():
+    
+    _id=request.form["txtID"]
+    
+    conexion=mysql.connect()
+    cursor=conexion.cursor()
+    cursor.execute("DELETE FROM reserva WHERE id_reserva=%s",(_id))
+    conexion.commit()
+
+    return redirect("/")
+
+
 
 @app.route("/reservas")
 def reservas():
@@ -363,7 +393,7 @@ def reservas():
 
     conexion=mysql.connect()
     cursor=conexion.cursor()
-    cursor.execute("SELECT id_reserva, fecha, id_hora FROM `reserva`")
+    cursor.execute("SELECT id_reserva, fecha, id_hora,id_responsable FROM `reserva`")
     reservas=cursor.fetchall()
     conexion.commit()
 

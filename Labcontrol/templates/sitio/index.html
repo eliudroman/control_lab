@@ -14,6 +14,9 @@
                 <h4 class="card-title">Reserva</h4>
                 <p class="card-text">Fecha: {{ reserva[1] }}</p>
                 <p class="card-text">Hora: {{ reserva[2] }}</p>
+                <form action="/cancelar_reserva" method="post" enctype="multipart/form-data">
+                    <button type="submit" class="btn btn-danger" value= "{{ reserva[0] }}" name="txtID" id="txtID">Cancelar</button>
+                </form>
             </div>
         </div>
     </div>
